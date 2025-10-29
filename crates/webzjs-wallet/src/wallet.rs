@@ -242,8 +242,10 @@ where
         let birthday = {
             // Fetch the tree state corresponding to the last block prior to the wallet's
             // birthday height. NOTE: THIS APPROACH LEAKS THE BIRTHDAY TO THE SERVER!
+            // Use max(1, birthday - 1) to avoid querying block 0, which lightwalletd rejects.
+            let tree_state_height = if birthday > 1 { birthday - 1 } else { 1 };
             let request = service::BlockId {
-                height: (birthday - 1).into(),
+                height: tree_state_height.into(),
                 ..Default::default()
             };
             let treestate = client.get_tree_state(request).await?.into_inner();
