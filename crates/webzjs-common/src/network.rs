@@ -14,6 +14,7 @@ pub enum Network {
     #[default]
     MainNetwork,
     TestNetwork,
+    RegtestNetwork,
 }
 
 impl FromStr for Network {
@@ -23,6 +24,7 @@ impl FromStr for Network {
         match s {
             "main" => Ok(Network::MainNetwork),
             "test" => Ok(Network::TestNetwork),
+            "regtest" => Ok(Network::RegtestNetwork),
             _ => Err(Error::InvalidNetwork(s.to_string())),
         }
     }
@@ -33,6 +35,7 @@ impl Parameters for Network {
         match self {
             Network::MainNetwork => zcash_protocol::consensus::NetworkType::Main,
             Network::TestNetwork => zcash_protocol::consensus::NetworkType::Test,
+            Network::RegtestNetwork => zcash_protocol::consensus::NetworkType::Regtest,
         }
     }
 
@@ -41,7 +44,7 @@ impl Parameters for Network {
             Network::MainNetwork => {
                 zcash_primitives::consensus::Network::MainNetwork.activation_height(nu)
             }
-            Network::TestNetwork => {
+            Network::TestNetwork | Network::RegtestNetwork => {
                 zcash_primitives::consensus::Network::TestNetwork.activation_height(nu)
             }
         }
@@ -52,7 +55,7 @@ impl From<Network> for consensus::Network {
     fn from(network: Network) -> Self {
         match network {
             Network::MainNetwork => consensus::Network::MainNetwork,
-            Network::TestNetwork => consensus::Network::TestNetwork,
+            Network::TestNetwork | Network::RegtestNetwork => consensus::Network::TestNetwork,
         }
     }
 }
