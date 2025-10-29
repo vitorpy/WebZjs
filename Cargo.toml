@@ -31,17 +31,19 @@ tonic-web-wasm-client = "0.6.0"
 tokio_with_wasm = { version = "0.7.1", features = ["rt", "rt-multi-thread", "sync", "macros", "time"] }
 
 ## Zcash dependencies
+## Using vitorpy/librustzcash with GetTreeState fix (same as CLI)
+## See Cargo.toml line 86-91 for details on the backport
 
-zcash_keys = { git = "https://github.com/ChainSafe/librustzcash", rev = "46e8ee0937b61fdbb417df7c663f62e6945d8090", features = ["transparent-inputs", "orchard", "sapling", "unstable"] }
-zcash_client_backend = { git = "https://github.com/ChainSafe/librustzcash", rev = "46e8ee0937b61fdbb417df7c663f62e6945d8090", default-features = false, features = ["sync", "lightwalletd-tonic", "wasm-bindgen", "orchard"] }
-zcash_client_memory = { git = "https://github.com/ChainSafe/librustzcash", rev = "46e8ee0937b61fdbb417df7c663f62e6945d8090", features = ["orchard", "transparent-inputs"] }
-zcash_primitives = { git = "https://github.com/ChainSafe/librustzcash", rev = "46e8ee0937b61fdbb417df7c663f62e6945d8090" }
-zcash_address = { git = "https://github.com/ChainSafe/librustzcash", rev = "46e8ee0937b61fdbb417df7c663f62e6945d8090" }
-zcash_proofs = { git = "https://github.com/ChainSafe/librustzcash", rev = "46e8ee0937b61fdbb417df7c663f62e6945d8090", default-features = false, features = ["bundled-prover", "multicore"] }
-zip321 = { git = "https://github.com/ChainSafe/librustzcash", rev = "46e8ee0937b61fdbb417df7c663f62e6945d8090" }
+zcash_keys = { git = "https://github.com/vitorpy/librustzcash.git", branch = "backport/utxo-query-height-v0.20.0", features = ["transparent-inputs", "orchard", "sapling", "unstable"] }
+zcash_client_backend = { git = "https://github.com/vitorpy/librustzcash.git", branch = "backport/utxo-query-height-v0.20.0", default-features = false, features = ["sync", "lightwalletd-tonic", "wasm-bindgen", "orchard"] }
+zcash_client_memory = { git = "https://github.com/vitorpy/librustzcash.git", branch = "backport/utxo-query-height-v0.20.0", features = ["orchard", "transparent-inputs"] }
+zcash_primitives = { git = "https://github.com/vitorpy/librustzcash.git", branch = "backport/utxo-query-height-v0.20.0" }
+zcash_address = { git = "https://github.com/vitorpy/librustzcash.git", branch = "backport/utxo-query-height-v0.20.0" }
+zcash_proofs = { git = "https://github.com/vitorpy/librustzcash.git", branch = "backport/utxo-query-height-v0.20.0", default-features = false, features = ["bundled-prover", "multicore"] }
+zip321 = { git = "https://github.com/vitorpy/librustzcash.git", branch = "backport/utxo-query-height-v0.20.0" }
 zip32 = { version = "0.1.3" }
-zcash_protocol = { git = "https://github.com/ChainSafe/librustzcash", rev = "46e8ee0937b61fdbb417df7c663f62e6945d8090", default-features = false }
-pczt = { git = "https://github.com/ChainSafe/librustzcash", rev = "46e8ee0937b61fdbb417df7c663f62e6945d8090", default-features = false, features = ["orchard", "sapling", "transparent"] }
+zcash_protocol = { git = "https://github.com/vitorpy/librustzcash.git", branch = "backport/utxo-query-height-v0.20.0", default-features = false }
+pczt = { git = "https://github.com/vitorpy/librustzcash.git", branch = "backport/utxo-query-height-v0.20.0", default-features = false, features = ["orchard", "sapling", "transparent"] }
 sapling = { package = "sapling-crypto", version = "0.4", default-features = false }
 
 ## gRPC Web dependencies
@@ -52,7 +54,7 @@ tonic = { version = "0.12", default-features = false, features = [
 
 
 # Used in Native tests
-zcash_client_sqlite = { git = "https://github.com/ChainSafe/librustzcash", rev = "46e8ee0937b61fdbb417df7c663f62e6945d8090", default-features = false, features = ["unstable", "orchard"] }
+zcash_client_sqlite = { git = "https://github.com/vitorpy/librustzcash.git", branch = "backport/utxo-query-height-v0.20.0", default-features = false, features = ["unstable", "orchard"] }
 
 getrandom = { version = "0.2", features = ["js"] }
 thiserror = "1.0.63"
