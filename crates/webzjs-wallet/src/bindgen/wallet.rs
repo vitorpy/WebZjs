@@ -281,7 +281,16 @@ impl WebWallet {
                 );
 
                 let db = db;
-                db.sync().await.unwrap_throw();
+                // Catch error and log it instead of panicking
+                match db.sync().await {
+                    Ok(()) => {
+                        tracing::info!("Wallet sync completed successfully");
+                    }
+                    Err(e) => {
+                        tracing::error!("Wallet sync failed: {:?}", e);
+                        // Don't panic, just log the error
+                    }
+                }
             })
             .unwrap_throw()
             .join_async();
@@ -502,6 +511,51 @@ impl WebWallet {
 
     pub async fn pczt_send(&self, pczt: Pczt) -> Result<(), Error> {
         self.inner.pczt_send(pczt.into()).await
+    }
+
+    /// Extract the transaction hex from a proven PCZT (for external broadcasting)
+    ///
+    /// This is useful when you want to broadcast the transaction via a different method
+    /// than lightwalletd (e.g., via a coordinator's RPC endpoint).
+    ///
+    /// # Arguments
+    ///
+    /// * `pczt` - A proven PCZT (must have proofs already generated via pczt_prove)
+    ///
+    /// # Returns
+    ///
+    /// A hex-encoded transaction string ready for broadcasting
+    pub async fn pczt_extract_tx_hex(&self, pczt: Pczt) -> Result<String, Error> {
+        use zcash_client_backend::data_api::wallet::extract_and_store_transaction_from_pczt;
+        let prover = zcash_proofs::prover::LocalTxProver::bundled();
+        let (spend_vk, output_vk) = prover.verifying_keys();
+        let mut db = self.inner.db.write().await;
+        let txid = extract_and_store_transaction_from_pczt::<_, ()>(
+            &mut *db,
+            pczt.into(),
+            &spend_vk,
+            &output_vk,
+            &orchard::circuit::VerifyingKey::build(),
+        )
+        .map_err(|e| {
+            Error::PcztSend(format!(
+                "Failed to extract transaction from PCZT: {:?}",
+                e
+            ))
+        })?;
+
+        // Get the transaction from the database
+        let tx = db.get_transaction(txid)?
+            .ok_or_else(|| Error::TransactionNotFound(txid))?;
+
+        // Serialize to bytes
+        let mut tx_bytes = Vec::new();
+        tx.write(&mut tx_bytes).map_err(|e| {
+            Error::Generic(format!("Failed to serialize transaction: {:?}", e))
+        })?;
+
+        // Convert to hex string
+        Ok(hex::encode(tx_bytes))
     }
 
     pub fn pczt_combine(&self, pczts: Vec<Pczt>) -> Result<Pczt, Error> {
